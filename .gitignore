@@ -1,14 +1,16 @@
-# os garbage
-Thumbs.db
-Desktop.ini
-.DS_Store
+# Ignore all by default
+/*
 
-# idea
-*.iml
-*.ipr
-*.iws
-/bin/
-.classpath
-/.gradle/
-.project
-/.settings/
+# Keep gradle files
+!gradle
+!gradle.properties
+!gradlew
+!gradlew.bat
+!build.gradle
+
+# Keep other files
+!.gitignore
+!src
+!README.md
+
+

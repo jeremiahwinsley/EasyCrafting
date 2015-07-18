@@ -46,7 +46,9 @@ public class RecipeManager {
 		HANDLERS.add(new ForgeRecipeHandler());
 	}
 	private static final List<WrappedRecipe> allRecipes = new ArrayList<WrappedRecipe>();
-	private static HashMap<Item, List<WrappedRecipe>> producers=new HashMap(), consumers=new HashMap();
+	private static HashMap<Item, List<WrappedRecipe>>
+            producers=new HashMap<Item, List<WrappedRecipe>>(),
+            consumers=new HashMap<Item, List<WrappedRecipe>>();
 	private static int prevListSize = 0;
 	private static IRecipe prevLastElement = null;
 
@@ -84,6 +86,13 @@ public class RecipeManager {
 		int fails = 0;
 		HashMap<String,String> recipeExists = new HashMap<String,String>();
 		for (IRecipe r : recipes) {
+            try {
+                r.getRecipeOutput().getUnlocalizedName();
+            } catch (Exception e) {
+                Ref.LOGGER.warn("[compat] Empty recipe skipped.");
+                continue;
+            }
+
 			WrappedRecipe wr = WrappedRecipe.of(r);
 			if (wr != null && !CheckIfRecipeAlreadyExists(allRecipes, wr,recipeExists)){
 				addItem(wr, wr.getOutput().getItem(), producers);

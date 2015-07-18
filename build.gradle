@@ -15,42 +15,33 @@ buildscript {
     }
 }
 // *** Load ForgeGradle
-apply plugin: "curseforge"
 apply plugin: "forge"
 
-// *** Load Build Config
-file("build.properties").withReader {
-    def prop = new Properties()
-    prop.load(it)
-    project.ext.config = new ConfigSlurper().parse(prop)
-}
-
-// *** Load Environment Variables
-ext.build_number = "${System.getenv("TRAVIS_BUILD_NUMBER") ?: "X"}"
-
 // *** Configure
-version          = "${config.version_mc}-${config.version}.${build_number}"
-group            = "${config.package}"
-archivesBaseName = "${config.filename}"
-
-// *** Print Information
-println "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-println "~ version = ${version}"
-println "~ forge = ${config.version_mc}-${config.version_forge}"
-println "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+version = "${minecraft_version}-${mod_version}-UNOFFICIAL"
+group            = "net.lepko.easycrafting"
+archivesBaseName = "EasyCrafting"
 
 minecraft {
-    version = "${config.version_mc}-${config.version_forge}"
-
-	if (file("../run").exists()) {
-		runDir = "../run"
-	} else {
-		runDir = "run"
-	}
+    version = "${minecraft_version}-${forge_version}"
+    runDir = "run"
+}
+repositories {
+    maven {
+        name "ChickenBones"
+        url "http://chickenbones.net/maven/"
+    }
+    maven {
+        name = "Player"
+        url = "http://maven.ic2.player.to/"
+    }
 }
 
 dependencies {
-    //compile "com.mod-buildcraft:buildcraft:6.0.8:dev"  // adds buildcraft to the dev env
+    compile "codechicken:NotEnoughItems:${minecraft_version}-${nei_version}:dev"
+    compile "codechicken:CodeChickenLib:${minecraft_version}-${code_chicken_lib_version}:dev"
+    compile "codechicken:CodeChickenCore:${minecraft_version}-${code_chicken_core_version}:dev"
+    compile "net.industrial-craft:industrialcraft-2:${ic2_version}-experimental:api"
 }
 
 processResources {
@@ -86,36 +77,4 @@ task devJar(type: Jar) {
 
 artifacts {
     archives sourceJar, devJar
-}
-
-// *** Deploy Jars
-configurations {
-	deployJars
-}
-
-dependencies {
-    deployJars "org.apache.maven.wagon:wagon-ftp:2.2"
-}
-
-uploadArchives {
-	onlyIf {
-		System.getenv("FTP_USER") != null && System.getenv("FTP_PASSWORD") != null &&
-		System.getenv("TRAVIS_BRANCH") == "master" && System.getenv("TRAVIS_PULL_REQUEST") == "false"
-	}
-	repositories.mavenDeployer {
-		configuration = configurations.deployJars
-		repository(url: "${config.ftp_location}"){
-			authentication(userName: "${System.getenv("FTP_USER")}", password: "${System.getenv("FTP_PASSWORD")}")
-		}
-	}
-}
-
-curse {
-	onlyIf {
-		System.getenv("TRAVIS_BRANCH") == "master" && System.getenv("TRAVIS_PULL_REQUEST") == "false"
-	}
-    apiKey = System.getenv("CURSEAPI")
-    projectId = "${config.curse_project_id}"
-    changelog = "Build for commit ${System.getenv("TRAVIS_COMMIT")}"
-    releaseType = "release"
 }
